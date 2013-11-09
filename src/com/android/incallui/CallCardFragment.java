@@ -21,6 +21,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.mokee.location.PhoneLocation;
+import android.mokee.util.MoKeeUtils;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -175,6 +177,38 @@ public class CallCardFragment extends BaseFragment<CallCardPresenter, CallCardPr
 
     }
 
+    public void setPrimaryPhoneNumber(String number, String location) {
+        // Set the number
+        if (TextUtils.isEmpty(number)) {
+            if (TextUtils.isEmpty(location)) {
+                mPhoneNumber.setText("");
+                mPhoneNumber.setVisibility(View.GONE);
+            } else {
+                mPhoneNumber.setText(location);
+                mPhoneNumber.setVisibility(View.VISIBLE);
+                mPhoneNumber.setTextDirection(View.TEXT_DIRECTION_LTR);
+            }  
+        } else {
+            mPhoneNumber.setText(number);
+            mPhoneNumber.setVisibility(View.VISIBLE);
+            mPhoneNumber.setTextDirection(View.TEXT_DIRECTION_LTR);
+        }
+    }
+
+    public void setPrimaryLabel(String label, String location) {
+        if (!TextUtils.isEmpty(label)) {
+            if (!TextUtils.isEmpty(location)) {
+                mNumberLabel.setText(label + "  " +location);
+            } else {
+                mNumberLabel.setText(label);
+            }
+            mNumberLabel.setVisibility(View.VISIBLE);
+        } else {
+            mNumberLabel.setVisibility(View.GONE);
+        }
+
+    }
+
     @Override
     public void setPrimary(String number, String name, boolean nameIsNumber, String label,
             Drawable photo, boolean isConference, boolean isGeneric,
@@ -187,13 +221,19 @@ public class CallCardFragment extends BaseFragment<CallCardPresenter, CallCardPr
             nameIsNumber = false;
         }
 
-        setPrimaryPhoneNumber(number);
-
         // set the name field.
         setPrimaryName(name, nameIsNumber);
 
-        // Set the label (Mobile, Work, etc)
-        setPrimaryLabel(label);
+        if (MoKeeUtils.isChineseLanguage() && !TextUtils.isEmpty(number) || MoKeeUtils.isChineseLanguage() && nameIsNumber) {
+            String location = PhoneLocation.getCityFromPhone(!TextUtils.isEmpty(number) ? number : name);
+            setPrimaryPhoneNumber(number, location);
+            // Set the label (Mobile, Work, etc) and location
+            setPrimaryLabel(label, location);
+        } else {
+            setPrimaryPhoneNumber(number);
+            // Set the label (Mobile, Work, etc)
+            setPrimaryLabel(label);
+        }
 
         showCallTypeLabel(isSipCall, isForwarded);
 
