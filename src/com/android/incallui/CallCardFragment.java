@@ -18,11 +18,11 @@ package com.android.incallui;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.mokee.location.PhoneLocation;
-import android.mokee.util.MoKeeUtils;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -209,6 +209,15 @@ public class CallCardFragment extends BaseFragment<CallCardPresenter, CallCardPr
 
     }
 
+    public static boolean isChineseLanguage() {
+        Resources res = Resources.getSystem();
+        if (res.getConfiguration().locale.getCountry().equals("CN") || res.getConfiguration().locale.getCountry().equals("TW")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void setPrimary(String number, String name, boolean nameIsNumber, String label,
             Drawable photo, boolean isConference, boolean isGeneric,
@@ -224,7 +233,7 @@ public class CallCardFragment extends BaseFragment<CallCardPresenter, CallCardPr
         // set the name field.
         setPrimaryName(name, nameIsNumber);
 
-        if (MoKeeUtils.isChineseLanguage() && !TextUtils.isEmpty(number) || MoKeeUtils.isChineseLanguage() && nameIsNumber) {
+        if (isChineseLanguage() && !TextUtils.isEmpty(number) || isChineseLanguage() && nameIsNumber) {
             String location = PhoneLocation.getCityFromPhone(!nameIsNumber ? number : name);
             setPrimaryPhoneNumber(!nameIsNumber ? number : "", location);
             // Set the label (Mobile, Work, etc) and location
